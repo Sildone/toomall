@@ -1,60 +1,27 @@
+#规划GateWay的服务端口
+server:
+  port: 8888
+##规划gateWay注册到到nacos上的服务应用名称
 spring:
   application:
-    name: cloud-gateway
-  redis:
-    host: 127.0.0.1
-    timeout: 3000
-    password: xxxx
-    jedis:
-      pool:
-        max-active: 8
-        max-idle: 4
+    name: toomall-gateway
   cloud:
-    gateway:
-      enabled: true
-      metrics:
-        enabled: true
+    nacos:
       discovery:
-        locator:
-          enabled: true
-      routes:
-        # 普通服务的路由配置
-        - id: cloud-eureka-client
-          uri: lb://cloud-eureka-client
-          order: 0
+        #gateway工程注册到nacos上的地址
+        server-addr: 49.232.202.163:8848
+    gateway:
+      routes:                       # 路由数组[路由 就是指定当请求满足什么条件的时候转到哪个微服务]
+        - id: product_route          # 当前路由的标识, 要求唯一
+          uri: lb://service-product  # lb指的是从nacos中按照名称获取微服务,并遵循负载均衡策略
+          predicates:                # 断言(就是路由转发要满足的条件)
+            - Path=/shop-pro/**       # 当请求路径满足Path指定的规则时,才进行路由转发
+          filters:                   # 过滤器,请求在传递过程中可以通过过滤器对其进行一定的修改
+            - StripPrefix=1           # 转发之前去掉1层路径
+        - id: order_route
+          uri: lb://service-order
           predicates:
-            - Path=/client/**
+            - Path=/shop-order/**
           filters:
-            #  parts 参数指示在将请求发送到下游之前，要从请求中去除的路径中的节数。比如我们访问 /client/hello，调用的时候变成 http://localhost:2222/hello
             - StripPrefix=1
-            # 熔断器
-            - name: Hystrix
-              args:
-                name: fallbackcmd
-                # 降级处理
-                fallbackUri: forward:/fallback
-            # 限流器
-            # 这定义了每个用户 10 个请求的限制。允许 20 个突发，但下一秒只有 10 个请求可用。
-            - name: RequestRateLimiter
-              args:
-                # SPEL 表达式获取 Spring 中的 Bean，这个参数表示根据什么来限流
-                key-resolver: '#{@ipKeyResolver}'
-                # 允许用户每秒执行多少请求（令牌桶的填充速率）
-                redis-rate-limiter.replenishRate: 10
-                # 允许用户在一秒内执行的最大请求数。（令牌桶可以保存的令牌数）。将此值设置为零将阻止所有请求。
-                redis-rate-limiter.burstCapacity: 20
-        # websocket 的路由配置
-        - id: websocket service
-          uri: lb:ws://serviceid
-          predicates:
-            - Path=/websocket/**
-management:
-  endpoints:
-    web:
-      exposure:
-        # 开启指定端点
-        include: gateway,metrics
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://user:password@localhost:1111/eureka/
+
