@@ -1,27 +1,17 @@
-#规划GateWay的服务端口
-server:
-  port: 8888
-##规划gateWay注册到到nacos上的服务应用名称
-spring:
-  application:
-    name: toomall-gateway
-  cloud:
-    nacos:
-      discovery:
-        #gateway工程注册到nacos上的地址
-        server-addr: 49.232.202.163:8848
-    gateway:
-      routes:                       # 路由数组[路由 就是指定当请求满足什么条件的时候转到哪个微服务]
-        - id: product_route          # 当前路由的标识, 要求唯一
-          uri: lb://service-product  # lb指的是从nacos中按照名称获取微服务,并遵循负载均衡策略
-          predicates:                # 断言(就是路由转发要满足的条件)
-            - Path=/shop-pro/**       # 当请求路径满足Path指定的规则时,才进行路由转发
-          filters:                   # 过滤器,请求在传递过程中可以通过过滤器对其进行一定的修改
-            - StripPrefix=1           # 转发之前去掉1层路径
-        - id: order_route
-          uri: lb://service-order
-          predicates:
-            - Path=/shop-order/**
-          filters:
-            - StripPrefix=1
-
+#server:
+#  port: 8888
+#spring:
+#  application:
+#    name: toomall-gateway
+#  profiles:
+#    active: dev
+#
+#  cloud:
+#    nacos:
+#      server-addr: 49.232.202.163:8848
+#      discovery:
+#        server-addr: 49.232.202.163:8848
+#      username: nacos
+#      password: nacos
+#      config:
+#        file-extension: yml
