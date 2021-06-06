@@ -7,8 +7,8 @@ spring:
         file-extension: yml
       server-addr: 49.232.202.163:8848
       discovery:
-        register-enabled: false
+        register-enabled: false #不需要注册自己
   application:
     name: toomall-gateway
   profiles:
-    active: dev
+    active: dev #dev、test、staging

@@ -18,7 +18,9 @@ import reactor.core.publisher.Mono;
 public class TokenGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        return null;
+        return chain.filter(exchange).then(Mono.fromCallable(() -> {
+            return null;
+        }));
     }
 
     @Override
